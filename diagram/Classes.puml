@@ -1,0 +1,81 @@
+@startuml
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) #x#
+
+' Entities
+table(WAREHOUSE_STORAGE_AREA) {
+  primary_key(storage_area_id): INT
+  area_name: VARCHAR
+  max_capacity: INT
+  free_capacity: DOUBLE
+}
+
+table(INVENTORY_ITEM) {
+  primary_key(item_id): INT
+  name: VARCHAR
+  category: VARCHAR
+  quantity: INT
+  foreign_key(storage_area_id): INT
+}
+
+table(ROBOT) {
+  primary_key(robot_id): INT
+  model: VARCHAR
+  status: VARCHAR
+  battery_level: DECIMAL
+  foreign_key(current_task_id): INT
+}
+
+table(TASK) {
+  primary_key(task_id): INT
+  task_type: VARCHAR
+  foreign_key(assigned_robot_id): INT
+  status: VARCHAR
+}
+
+table(TASK_ATTRIBUTES) {
+  primary_key(task_attribute_id): INT
+  foreign_key(task_id): INT
+  foreign_key(attribute_id): INT
+  attribute_value: INT
+}
+
+table(ORDER) {
+  primary_key(order_id): INT
+  order_date: DATETIME
+  shipping_address: VARCHAR
+  status: VARCHAR
+  tracking_info: VARCHAR
+}
+
+table(ORDER_ITEM) {
+  primary_key(order_item_id): INT
+  foreign_key(order_id): INT
+  foreign_key(item_id): INT
+  quantity: INT
+}
+
+table(USER) {
+  primary_key(user_id): INT
+  password: VARCHAR
+  name: VARCHAR
+  role: VARCHAR
+  email: VARCHAR
+}
+
+' Relationships
+WAREHOUSE_STORAGE_AREA "1" -- "*" INVENTORY_ITEM: stores >
+ROBOT "1" -- "0..1" TASK: performs >
+TASK "1" -- "*" TASK_ATTRIBUTES: has >
+ORDER "1" -- "*" ORDER_ITEM: contains >
+INVENTORY_ITEM "1" -- "*" ORDER_ITEM: included_in >
+USER "1" -- "*" ORDER: manages >
+
+' Notes for enums
+note right of ROBOT : "status: [Idle, In Operation, Maintenance]"
+note right of TASK : "task_type: [Pick, Place, Move, Charge]\nstatus: [Pending, In Progress, Completed]"
+note right of ORDER : "status: [Pending, Processing, Shipped]"
+note right of USER : "role: [Admin, Operator, Manager]"
+
+@enduml
